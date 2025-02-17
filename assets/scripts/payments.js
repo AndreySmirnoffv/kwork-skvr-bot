@@ -27,21 +27,21 @@ export async function createPayment(bot, chatId, subType, msg) {
                 type: "redirect",
                 return_url: "https://google.com"
             },
-            // receipt: {
-            //     customer: {
-            //       email,
-            //     },
-            //     items: [
-            //       {
-            //         description: "Оплата подписки на канал по медитациям",
-            //         quantity: 1,
-            //         amount: {
-            //           value: pricesDb[subType].price,
-            //           currency: "RUB",
-            //         },
-            //       },
-            //     ],
-            //   },
+            receipt: {
+                customer: {
+                  email,
+                },
+                items: [
+                  {
+                    description: "Оплата подписки на канал по медитациям",
+                    quantity: 1,
+                    amount: {
+                      value: pricesDb[subType].price,
+                      currency: "RUB",
+                    },
+                  },
+                ],
+              },
         };
 
         const startDate = new Date();
