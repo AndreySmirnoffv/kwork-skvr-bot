@@ -2,7 +2,6 @@ import TelegramBot from "node-telegram-bot-api";
 import dotenv from 'dotenv'
 import { readFileSync } from "fs";
 import { createPayment } from "./assets/scripts/payments.js";
-import { logger } from "./assets/services/logger.js";
 import { getUser } from "./assets/scripts/users.js";
 import { changePrices, sendMessagesToAll } from "./assets/scripts/admin.js";
 import { checkExpiredSubscriptions } from "./assets/scripts/checkExpiredSubScriptions.js";
@@ -12,7 +11,7 @@ import { SubPricesModel } from "./assets/models/SubPricesModel.js";
 
 dotenv.config()
 
-export const bot = new TelegramBot(process.env.TOKEN, {polling: true})
+export const bot = new TelegramBot(process.env.TOKEN, { polling: true })
 
 const commands = JSON.parse(readFileSync("./assets/db/commands/commands.json", 'utf-8'))
 
@@ -191,5 +190,5 @@ bot.on('callback_query', async msg => {
 });
 
 
-bot.on('polling_error', logger.error)
+bot.on('polling_error', console.error)
 
