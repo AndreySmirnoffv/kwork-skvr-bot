@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import { createPayment } from "./assets/scripts/payments.js";
 import { logger } from "./assets/services/logger.js";
 import { getUser } from "./assets/scripts/users.js";
-import { sendMessagesToAll } from "./assets/scripts/admin.js";
+import { changePrices, sendMessagesToAll } from "./assets/scripts/admin.js";
 import { checkExpiredSubscriptions } from "./assets/scripts/checkExpiredSubScriptions.js";
 import prices from './assets/db/prices/db.json' with {type: "json"}
 import { SubPricesModel } from "./assets/models/SubPricesModel.js";
@@ -139,13 +139,14 @@ Mindfulness
         ? userPrices.map(price => [
             { text: `${price.price} Руб`, callback_data: price.type }
         ])
+        
         : [
             [{ text: `${prices.seven_day_sub.price} Руб`, callback_data: "seven_day_sub" }],
             [{ text: `${prices.one_month_sub.price} Руб`, callback_data: "one_month_sub" }],
             [{ text: `${prices.three_months_sub.price} Руб`, callback_data: "three_months_sub" }],
             [{ text: `${prices.six_months_sub.price} Руб`, callback_data: "six_months_sub" }]
         ];
-
+        console.log(userPrices)
     await bot.sendMessage(msg.chat.id, message, {
         reply_markup: {
             inline_keyboard: inlineKeyboard
@@ -155,18 +156,40 @@ Mindfulness
 
 
 bot.on('callback_query', async msg => {
-    const data = msg.data
-    const chatId = msg.message.chat.id
-
-    switch(data){
+    const data = msg.data;
+    const chatId = msg.message.chat.id;
+    const messageId =  msg.message.message_id
+    switch (data) {
         case "send_messages_to_all":
-            await sendMessagesToAll(bot, chatId)
-            break
+            await sendMessagesToAll(bot, chatId);
+            break;
+        case "accept_terms":
+            await bot.answerCallbackQuery(msg.id, { text: "Условия приняты ✅" });
+            await bot.deleteMessage(chatId, messageId)
+            await bot.sendMessage(chatId, `📅 Подписка продлена до`, {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ 
+                            text: "Подписаться", 
+                            url: process.env.CHANNEL_INVITE_LINK 
+                        }]
+                    ]
+                }
+            });
+            break;
+
+        case "change_prices":
+            await bot.deleteMessage(chatId, messageId)
+            await changePrices(bot, chatId);
+            break;
+            
         default:
-            await createPayment(bot, chatId, data)
-            break
+            await bot.deleteMessage(chatId, messageId)
+            await createPayment(bot, chatId, data, msg);
+            break;
     }
-})
+});
+
 
 bot.on('polling_error', logger.error)
 

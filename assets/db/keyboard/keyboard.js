@@ -13,7 +13,8 @@ export const pricesKeyboard = {
 export const adminKeyboard = {
     reply_markup: JSON.stringify({
         inline_keyboard: [
-            [{ text: "Отправить сообщение", callback_data: "send_messages_to_all" }]
+            [{ text: "Отправить сообщение", callback_data: "send_messages_to_all" }],
+            [{ text: "Изменить цены", callback_data: "change_prices" }]
         ]
     })
 }
