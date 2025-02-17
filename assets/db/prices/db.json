@@ -1,0 +1,6 @@
+{
+    "seven_day_sub": {"price": 7, "durationInDays": 7},
+    "one_month_sub": { "price": 450, "durationInDays": 30 },
+    "three_months_sub": { "price": 1200, "durationInDays": 90 },
+    "six_months_sub": { "price": 2300, "durationInDays": 180 }
+}

@@ -1,0 +1,14 @@
+[
+    {
+        "command": "/start",
+        "description": "Начать"
+    },
+    {
+        "command": "/meditations",
+        "description": "Медитации"
+    },
+    {
+        "command": "/getsubscription",
+        "description": "Купить подписку"
+    }
+]

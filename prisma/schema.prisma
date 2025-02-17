@@ -12,3 +12,51 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model users {
+  id            BigInt  @id @default(autoincrement())
+  chatId        BigInt  @unique
+  email         String?
+  subscription  Boolean @default(true)
+  isAdmin       Boolean @default(false)
+  isBanned      Boolean @default(false)
+  gotSubOnce    Boolean @default(false)
+  subscriptions subscriptions[]
+  payments      payments[]
+  subscription_prices subscription_prices[]
+}
+
+model subscription_prices {
+  id        BigInt  @id @default(autoincrement())
+  chatId    BigInt
+  price     BigInt
+  type      String
+
+  user      users   @relation(fields: [chatId], references: [chatId])
+}
+
+model subscriptions {
+  id        BigInt   @id @default(autoincrement())
+  chatId    BigInt   @unique
+  status    String   @default("")
+  type      String
+  price     BigInt   @default(0)
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  user users @relation(fields: [chatId], references: [chatId])
+}
+
+
+
+model payments {
+  id        BigInt  @id @default(autoincrement())
+  paymentId String  @unique
+  chatId    BigInt
+  amount    BigInt  
+  status    String
+  paid      Boolean @default(false)
+
+  user users @relation(fields: [chatId], references: [chatId])
+}
+
