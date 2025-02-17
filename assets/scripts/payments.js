@@ -184,7 +184,11 @@ export async function succeedPayment(bot, chatId, paymentId, data) {
             "Необходимо принять условия оферты, политики обработки персональных данных и предоставить согласие на их обработку.",
             {
                 reply_markup: {
-                    inline_keyboard: [[{ text: "Принять", callback_data: "accept_terms" }]],
+                    inline_keyboard: [
+                        [ {text: "Политика обработки данных", url: "https://disk.yandex.ru/i/XW-id3g7CgUySQ"} ]
+                        [{ text: "Оферта", url: "https://disk.yandex.ru/i/6Ht9fMgHzYWBjg"}]
+                        [{ text: "Принять", callback_data: "accept_terms" }]
+                    ],
                 },
             }
         );
