@@ -11,7 +11,7 @@ import { saveSubPrice } from './saveSubPrice.js';
 const paymentModel = new PaymentModel();
 let paymentIntervals = [];
 
-export async function createPayment(bot, chatId, subType, msg) {
+export async function createPayment(bot, chatId, subType) {
     try {
         const {email} = await registerQuestions(bot, chatId)
         await new UserModel().updateUser({ chatId, email })
