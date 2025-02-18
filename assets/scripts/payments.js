@@ -13,7 +13,7 @@ let paymentIntervals = [];
 
 export async function createPayment(bot, chatId, subType) {
     try {
-        const {email} = await registerQuestions(bot, chatId)
+        const { email } = await registerQuestions(bot, chatId)
         await new UserModel().updateUser({ chatId, email })
 
         console.info(`Creating payment for chatId: ${chatId}, subType: ${subType}`);
@@ -27,21 +27,7 @@ export async function createPayment(bot, chatId, subType) {
                 type: "redirect",
                 return_url: "https://google.com"
             },
-            receipt: {
-                customer: {
-                  email,
-                },
-                items: [
-                  {
-                    description: "Оплата подписки на канал по медитациям",
-                    quantity: 1,
-                    amount: {
-                      value: pricesDb[subType].price,
-                      currency: "RUB",
-                    },
-                  },
-                ],
-              },
+           
         };
 
         const startDate = new Date();
@@ -178,7 +164,29 @@ export async function succeedPayment(bot, chatId, paymentId, data) {
         }
         
         await saveSubPrice(chatId)
+        
+        const { email } = await registerQuestions(bot, chatId)
 
+        await checkout.createReceipt({
+            type: "payment",
+            send: true, 
+            payment_id: paymentId,
+            customer: {
+                email,  
+            },
+            items: [
+                {
+                    description: "Оплата подписки на канал",
+                    quantity: 1,
+                    amount: {
+                        value: pricesDb[data].price, 
+                        currency: "RUB"
+                    },
+                    vat_code: 1
+                }
+            ],
+        }, v4());
+        
         return await bot.sendMessage(
             chatId,
             "Необходимо принять условия оферты, политики обработки персональных данных и предоставить согласие на их обработку.",
