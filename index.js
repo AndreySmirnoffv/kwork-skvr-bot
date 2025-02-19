@@ -162,20 +162,6 @@ bot.on('callback_query', async msg => {
         case "send_messages_to_all":
             await sendMessagesToAll(bot, chatId);
             break;
-        case "accept_terms":
-            await bot.answerCallbackQuery(msg.id, { text: "Условия приняты ✅" });
-            await bot.deleteMessage(chatId, messageId)
-            await bot.sendMessage(chatId, `📅 Подписка продлена до`, {
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ 
-                            text: "Подписаться", 
-                            url: process.env.CHANNEL_INVITE_LINK 
-                        }]
-                    ]
-                }
-            });
-            break;
 
         case "change_prices":
             await bot.deleteMessage(chatId, messageId)

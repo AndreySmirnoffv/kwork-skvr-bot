@@ -4,7 +4,13 @@ import * as fs from 'fs'
 import { waitForText } from "../utils/waitForText.js";
 
 export async function sendMessagesToAll(bot, chatId) {
+
+    await bot.sendMessage(chatId, "Пришлите мне текст который вы хотите отослать пользователю")
+
+    const message = await waitForText(bot, chatId)
+
     const users = await new AdminModel().findAll();
+
     console.log(users);
 
     for (const user of users) {
@@ -12,7 +18,7 @@ export async function sendMessagesToAll(bot, chatId) {
             continue
         }
 
-        await bot.sendMessage(user.chatId, "hello world")
+        await bot.sendMessage(user.chatId, message)
     }
 }
 

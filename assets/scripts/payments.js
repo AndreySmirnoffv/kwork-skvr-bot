@@ -16,42 +16,62 @@ export async function createPayment(bot, chatId, subType) {
         const { email } = await registerQuestions(bot, chatId)
         await new UserModel().updateUser({ chatId, email })
 
+        const paymentMessage = await bot.sendMessage(
+            chatId,
+            "Необходимо принять условия оферты и политики обработки персональных данных перед продолжением:",
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "Политика обработки данных", url: "https://disk.yandex.ru/i/XYZ123" }],
+                        [{ text: "Оферта", url: "https://disk.yandex.ru/i/6Ht9fMgHzYWBj" }],
+                        [{ text: "Принять", callback_data: "accept_terms" }]
+                    ],
+                },
+            }
+        );
+
         console.info(`Creating payment for chatId: ${chatId}, subType: ${subType}`);
 
-        const payload = {
-            amount: {
-                value: pricesDb[subType].price,
-                currency: "RUB"
-            },
-            confirmation: {
-                type: "redirect",
-                return_url: "https://google.com"
-            },
-           
-        };
+        bot.on('callback_query', async (query) => {
+            if (query.data === 'accept_terms' && query.message.chat.id === chatId) {
+                await bot.deleteMessage(chatId, paymentMessage.message_id);
 
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setDate(startDate.getDate() + pricesDb[subType].durationInDays);
+                const payload = {
+                    amount: {
+                        value: pricesDb[subType].price,
+                        currency: "RUB"
+                    },
+                    confirmation: {
+                        type: "redirect",
+                        return_url: "https://google.com"
+                    },
+                };
 
-        const { id, confirmation: { confirmation_url }, status, paid } = await checkout.createPayment(payload, v4());
+                const startDate = new Date();
+                const endDate = new Date();
+                endDate.setDate(startDate.getDate() + pricesDb[subType].durationInDays);
 
-        const sentMessage = await bot.sendMessage(chatId, "Оплатить можно по кнопке", {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: "Оплатить", url: confirmation_url }]
-                ]
+                const { id, confirmation: { confirmation_url }, status, paid } = await checkout.createPayment(payload, v4());
+
+                const sentMessage = await bot.sendMessage(chatId, "Оплатить можно по кнопке", {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: "Оплатить", url: confirmation_url }]
+                        ]
+                    }
+                });
+
+                setTimeout(async () => {
+                    await bot.deleteMessage(chatId, sentMessage.message_id);
+                    await bot.sendMessage(chatId, "Срок оплаты истек либо ты уже оплатил)")
+                }, 600000);
+
+                await paymentModel.insertPayment({ paymentId: id, chatId, amount: pricesDb[subType].price, paid, status });
+                console.info(`Payment created: ${id}, status: ${status}, paid: ${paid}`);
+
+                setInterval(() => capturePayment(bot, chatId, id, subType), 3000);
             }
         });
-
-        setTimeout(async () => {
-            await bot.deleteMessage(chatId, sentMessage.message_id);
-            await bot.sendMessage(chatId, "Срок оплаты истек либо ты уже оплатил)")
-        }, 600000); 
-        await paymentModel.insertPayment({ paymentId: id, chatId, amount: pricesDb[subType].price, paid, status });
-        console.info(`Payment created: ${id}, status: ${status}, paid: ${paid}`);
-
-        setInterval(() => capturePayment(bot, chatId, id, subType), 3000);
     } catch (error) {
         console.error(`Error creating payment for chatId: ${chatId}, subType: ${subType}, error: ${error.message}`);
         console.error('Error creating payment:', error);
@@ -164,42 +184,39 @@ export async function succeedPayment(bot, chatId, paymentId, data) {
         }
         
         await saveSubPrice(chatId)
-        
-        const { email } = await registerQuestions(bot, chatId)
 
-        await checkout.createReceipt({
-            type: "payment",
-            send: true, 
-            payment_id: paymentId,
-            customer: {
-                email,  
-            },
-            items: [
-                {
-                    description: "Оплата подписки на канал",
-                    quantity: 1,
-                    amount: {
-                        value: pricesDb[data].price, 
-                        currency: "RUB"
-                    },
-                    vat_code: 1
-                }
-            ],
-        }, v4());
-        
-        return await bot.sendMessage(
-            chatId,
-            "Необходимо принять условия оферты, политики обработки персональных данных и предоставить согласие на их обработку.",
-            {
-                reply_markup: {
-                    inline_keyboard: [
-                        [ {text: "Политика обработки данных", url: "https://disk.yandex.ru/i/XW-id3g7CgUySQ"} ]
-                        [{ text: "Оферта", url: "https://disk.yandex.ru/i/6Ht9fMgHzYWBjg"}]
-                        [{ text: "Принять", callback_data: "accept_terms" }]
-                    ],
-                },
+        // const { email } = await registerQuestions(bot, chatId)
+
+        // await checkout.createReceipt({
+        //     type: "payment",
+        //     send: true, 
+        //     payment_id: paymentId,
+        //     customer: {
+        //         email,  
+        //     },
+        //     items: [
+        //         {
+        //             description: "Оплата подписки на канал",
+        //             quantity: 1,
+        //             amount: {
+        //                 value: pricesDb[data].price, 
+        //                 currency: "RUB"
+        //             },
+        //             vat_code: 1
+        //         }
+        //     ],
+        // }, v4());
+        await bot.unbanChatMember(process.env.CHANNEL_ID, chatId)
+        await bot.sendMessage(chatId, `📅 Подписка продлена до`, {
+            reply_markup: {
+                inline_keyboard: [
+                    [{ 
+                        text: "Подписаться", 
+                        url: process.env.CHANNEL_INVITE_LINK 
+                    }]
+                ]
             }
-        );
+        });
                  
         
     } catch (error) {

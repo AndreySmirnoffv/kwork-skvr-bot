@@ -9,7 +9,7 @@ export async function checkExpiredSubscriptions() {
         
         for (const sub of expiredSubs) {
             const { chatId } = sub; 
-
+            await bot.banChatMember(process.env.CHANNEL_ID, chatId)
             await bot.banChatMember(process.env.CHANNEL_ID, chatId);
             console.log(`User ${chatId} was banned due to expired subscription.`);
         }

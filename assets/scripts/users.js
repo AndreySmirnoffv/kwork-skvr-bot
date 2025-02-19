@@ -47,7 +47,7 @@ export async function getUser(bot, msg) {
 
         await Promise.all(existingFiles.map(filePath => {
             const fileStream = fs.createReadStream(filePath);
-            return bot.sendDocument(chatId, fileStream);
+            return bot.sendAudio(chatId, fileStream);
         }));
     }
 
