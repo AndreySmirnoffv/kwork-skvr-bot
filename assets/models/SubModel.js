@@ -17,7 +17,6 @@ export class SubModel {
         });
     }
 
-
     async getCurrentSub(chatId) {
         let sub = await prisma.subscriptions.findFirst({
             where: { chatId }
@@ -30,7 +29,6 @@ export class SubModel {
         return new Date(sub.endDate);
     }
     
-
     async updateCurrentSub(chatId, updateData) {
         return await prisma.subscriptions.update({
             where: { chatId },

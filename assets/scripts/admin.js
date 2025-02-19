@@ -37,8 +37,7 @@ export async function changePrices(bot, chatId) {
     const subToChange = await waitForText(bot, chatId)
 
     if (!prices[subToChange]) {
-        await bot.sendMessage(chatId, "Ошибка: такая подписка не найдена.");
-        return;
+        return await bot.sendMessage(chatId, "Ошибка: такая подписка не найдена.");
     }
 
     await bot.sendMessage(chatId, "Пришлите мне новую цену для подписки");
@@ -49,7 +48,6 @@ export async function changePrices(bot, chatId) {
 
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
         return await bot.sendMessage(chatId, "Ошибка: введена неверная цена.");
-    
     }
 
     prices[subToChange].price = parsedPrice;
