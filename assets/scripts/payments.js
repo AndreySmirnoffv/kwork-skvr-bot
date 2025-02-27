@@ -78,7 +78,6 @@ export async function createPayment(bot, chatId, subType) {
                     await paymentModel.insertPayment({ paymentId: id, chatId, amount: pricesDb[subType].price, paid, status });
                     console.info(`Payment created: ${id}, status: ${status}, paid: ${paid}`);
 
-                    // Pass endDate to the capturePayment and succeedPayment
                     setInterval(() => capturePayment(bot, chatId, id, subType, email, endDate), 3000);
                 } catch (error) {
                     console.error("Error during payment creation:", error);
