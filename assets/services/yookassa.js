@@ -3,7 +3,10 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const isProd = process.env.prodStatus === 'true'; 
+
 export const checkout = new YooCheckout({
-    secretKey: process.env.SECRET_KEY,
-    shopId: process.env.SHOP_ID
-})
+    shopId: isProd ? Number(process.env.PROD_SHOP_ID) : Number(process.env.TEST_SHOP_ID),
+    secretKey: isProd ? String(process.env.PROD_SECRET_KEY) : String(process.env.TEST_SECRET_KEY)
+});
+

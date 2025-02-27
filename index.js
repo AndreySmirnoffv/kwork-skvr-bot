@@ -22,10 +22,11 @@ setInterval(async () => await checkSubscriptions, 24 * 60 * 60 * 1000);
 
 bot.on('message', async msg => {
     console.log(msg)
+    console.log(process.env.SHOP_ID, process.env.SECRET_KEY)
     if (msg.text == "/start"){
         await getUser(bot, msg)
     }else if(msg.text === "/meditations"){
-    await bot.sendMessage(msg.chat.id, `На данный момент в сообществе уже представлены медитации по темам: 
+    	await bot.sendMessage(msg.chat.id, `На данный момент в сообществе уже представлены медитации по темам: 
 
 Медитации расслабления 
 
@@ -126,7 +127,7 @@ Mindfulness
 
     const userPrices = await new SubPricesModel().getPricesForUser(msg.chat.id);
     
-    const message = `Оформить подписку за 1 рубль!
+    const message = `Оформить подписку за 7 рублей!
 
 Приглашаю тебя в удивительное путешествие по вселенной самосовершенствования. Тебя ждут медитации на все случаи жизни!
 
@@ -154,27 +155,32 @@ Mindfulness
 }})
 
 
+
 bot.on('callback_query', async msg => {
     const data = msg.data;
     const chatId = msg.message.chat.id;
-    const messageId =  msg.message.message_id
+    const messageId = msg.message.message_id;
+    
     switch (data) {
         case "send_messages_to_all":
             await sendMessagesToAll(bot, chatId);
             break;
 
         case "change_prices":
-            await bot.deleteMessage(chatId, messageId)
+            await bot.deleteMessage(chatId, messageId);
             await changePrices(bot, chatId);
             break;
-            
+
         default:
-            await bot.deleteMessage(chatId, messageId)
-            await createPayment(bot, chatId, data, msg);
+            if(data.includes("_sub")){
+                console.log(prices);
+                await createPayment(bot, chatId, data);
+                break
+            }
+
             break;
     }
 });
-
 
 bot.on('polling_error', console.error)
 
