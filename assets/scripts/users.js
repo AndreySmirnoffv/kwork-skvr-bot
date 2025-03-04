@@ -8,7 +8,7 @@ export async function getUser(bot, msg) {
 
     const meditationPaths = [
         "Вечерняя медитация.mp3",
-        "МАЙНДФУЛНЕС.mp3",
+        "Mindfulness.mp3",
         "Медитация благодарности.mp3",
         "Медитация любящей доброты.mp3",
         "Медитация принятия энергии.mp3",
@@ -18,6 +18,7 @@ export async function getUser(bot, msg) {
 
     let user = await new UserModel().findUser(chatId);
     console.log(user?.isAdmin)
+    console.log(meditationPaths)
     if (!user) {
         await createChatIdForUser(chatId);
         user = await new UserModel().findUser(chatId);
